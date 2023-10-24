@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Biblioteka Audio</title>
+    <style>
+      /* Dodaj odpowiednie style dla wyglądu strony */
+
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      select,
+      input[type="text"] {
+        padding: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Biblioteka Audio</h1>
+
+    <!-- Formularz filtrowania -->
+    <label for="genre">Wybierz gatunek:</label>
+    <select id="genre">
+      <option value="all">Wszystkie</option>
+    </select>
+
+    <label for="tempo">Wybierz tempo:</label>
+    <select id="tempo">
+      <option value="all">Wszystkie</option>
+      <option value="slow">Wolne (&lt; 110 bpm)</option>
+      <option value="medium">Średnie (110-130 bpm)</option>
+      <option value="fast">Szybkie (&gt; 130 bpm)</option>
+    </select>
+
+    <label for="search">Szukaj:</label>
+    <input type="text" id="search" placeholder="Wyszukaj tytuł lub artystę" />
+
+    <!-- Tabela z utworami -->
+    <table id="songTable">
+      <thead>
+        <tr>
+          <th>Tytuł</th>
+          <th>Artysta</th>
+          <th>Gatunek</th>
+          <th>Tempo (bpm)</th>
+          <th>Długość (s)</th>
+          <th>Ulubione</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dane będą dodawane dynamicznie tutaj -->
+      </tbody>
+    </table>
+
+    <script>
+      // Pobierz dane z JSON
+      const songsUrl =
+        "https://gist.githubusercontent.com/techniadrian/c39f844edbacee0439bfeb107227325b/raw/81eec7847b1b3dfa1c7031586405c93e9a9c1a2d/songs.json";
+      const genresUrl =
+        "https://gist.githubusercontent.com/techniadrian/6ccdb1c837d431bb84c2dfedbec2e435/raw/60783ebfa89c6fd658aaf556b9f7162553ac0729/genres.json";
+
+      fetch(songsUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          const songs = data.songs;
+          populateSongTable(songs);
+        })
+        .catch((error) =>
+          console.error("Błąd podczas pobierania utworów:", error)
+        );
+
+      fetch(genresUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          const genres = data.genres;
+          populateGenreSelect(genres);
+        })
+        .catch((error) =>
+          console.error("Błąd podczas pobierania gatunków:", error)
+        );
+
+      function populateSongTable(songs) {
+        // Implementacja funkcji do wypełniania tabeli utworów
+        // Dla każdego utworu utwórz wiersz w tabeli
+      }
+
+      function populateGenreSelect(genres) {
+        // Implementacja funkcji do wypełniania listy opcji w select z gatunkami
+      }
+
+      // Implementuj funkcje do filtrowania, sortowania i zarządzania ulubionymi
+    </script>
+  </body>
+</html>

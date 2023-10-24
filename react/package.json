@@ -1,0 +1,16 @@
+{
+  "name": "julia",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "SORT I REDUCE.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "julia": "echo siemano"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cowsay": "^1.5.0"
+  }
+}
