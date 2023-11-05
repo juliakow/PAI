@@ -1,113 +1,398 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Biblioteka Audio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteka audio</title>
     <style>
-      /* Dodaj odpowiednie style dla wyglądu strony */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
       body {
         font-family: Arial, sans-serif;
+        background-color: #000000;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        color: white;
+      }
+
+      h1 {
+        text-align: center;
+        color: #fff8f8;
+        margin: 20px 0;
+      }
+
+      form {
+        margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
+
+      form > * {
+        margin: 6px;
+      }
+
+      select,
+      input,
+      button {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ffffff;
+        margin-bottom: 10px;
+      }
+
+      button {
+        background-color: #000;
+        color: #ffffff;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #4a3a3a;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(249, 0, 0, 0.1);
+        background-color: #767070;
+        margin: 20px 0;
       }
 
       th,
       td {
-        border: 1px solid #ddd;
-        padding: 8px;
+        padding: 12px;
         text-align: left;
       }
 
       th {
-        background-color: #f2f2f2;
+        background-color: #4c4848;
+        color: #fff;
       }
 
-      select,
-      input[type="text"] {
-        padding: 5px;
+      tr:nth-child(even) {
+        background-color: #5b5757;
+      }
+
+      @media screen and (max-width: 200px) {
+        table {
+          border-radius: 0;
+          box-shadow: none;
+          overflow-x: auto;
+        }
+        th,
+        td {
+          padding: 8px;
+          text-align: center;
+        }
+        th {
+          display: none;
+        }
+        tr {
+          margin-bottom: 10px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+        }
       }
     </style>
   </head>
 
   <body>
-    <h1>Biblioteka Audio</h1>
+    <form id="filterForm">
+      <label for="genreSelect">Wybierz gatunek:</label>
+      <select id="genreSelect">
+        <option value="pop">pop</option>
+        <option value="Rap">Rap</option>
+        <option value="R&B">R&B</option>
+        <option value="Trap">Trap</option>
+        <option value="Drill">Drill</option>
+        <option value="House">House</option>
+        <option value="Techno">Techno</option>
+        <option value="Rock">Rock</option>
+        <option value="Indie">Indie</option>
+      </select>
+      <label for="tempoSelect">Wybierz tempo:</label>
+      <select id="tempoSelect">
+        <option value="slow">Wolno (Below 110 bpm)</option>
+        <option value="medium">Ś rednio (110 - 130 bpm)</option>
+        <option value="fast">Szybko (Above 130 bpm)</option>
+      </select>
 
-    <!-- Formularz filtrowania -->
-    <label for="genre">Wybierz gatunek:</label>
-    <select id="genre">
-      <option value="all">Wszystkie</option>
-    </select>
+      <label for="searchInput">Szukaj po nazwie:</label>
+      <input type="text" id="searchInput" placeholder="Search song or artist" />
 
-    <label for="tempo">Wybierz tempo:</label>
-    <select id="tempo">
-      <option value="all">Wszystkie</option>
-      <option value="slow">Wolne (&lt; 110 bpm)</option>
-      <option value="medium">Średnie (110-130 bpm)</option>
-      <option value="fast">Szybkie (&gt; 130 bpm)</option>
-    </select>
+      <label for="sortSelect">Wybierz wiedług czasu i trwania:</label>
+      <select id="sortSelect">
+        <option value="asc">Wszystkie</option>
+        <option value="desc">Rosnąco</option>
+        <option value="desc">Malejąco</option>
+      </select>
 
-    <label for="search">Szukaj:</label>
-    <input type="text" id="search" placeholder="Wyszukaj tytuł lub artystę" />
+      <button type="reset" onclick="resetFilters()">Reset</button>
+    </form>
 
-    <!-- Tabela z utworami -->
-    <table id="songTable">
+    <h1>Audio Library</h1>
+
+    <table id="songsTable">
       <thead>
         <tr>
           <th>Tytuł</th>
-          <th>Artysta</th>
+          <th>Wykonawca</th>
           <th>Gatunek</th>
-          <th>Tempo (bpm)</th>
-          <th>Długość (s)</th>
-          <th>Ulubione</th>
+          <th>Czas trwania</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Dane będą dodawane dynamicznie tutaj -->
-      </tbody>
+      <tbody id="songsTableBody"></tbody>
     </table>
 
     <script>
-      // Pobierz dane z JSON
-      const songsUrl =
-        "https://gist.githubusercontent.com/techniadrian/c39f844edbacee0439bfeb107227325b/raw/81eec7847b1b3dfa1c7031586405c93e9a9c1a2d/songs.json";
-      const genresUrl =
-        "https://gist.githubusercontent.com/techniadrian/6ccdb1c837d431bb84c2dfedbec2e435/raw/60783ebfa89c6fd658aaf556b9f7162553ac0729/genres.json";
+      const songsData = [
+        {
+          id: "1",
+          artists: ["Luna Skies", "DJ Solarflare"],
+          title: "Moonlit Dance",
+          coverUrl:
+            "https://i.pinimg.com/originals/ea/1f/64/ea1f64668a0af149a3277db9e9e54824.jpg",
+          genre: "House",
+          bpm: 128,
+          duration: 195,
+        },
+        {
+          id: "2",
+          artists: ["The Velvet Owls"],
+          title: "Whispered Secrets",
+          coverUrl:
+            "https://pub-static.fotor.com/assets/projects/pages/c7d9749a29fc44a5a54da2bba21165af/gradient-cool-new-bullet-e52b9cac8825471981dc12dd343176da.jpg",
+          genre: "Rock",
+          bpm: 115,
+          duration: 223,
+        },
+        {
+          id: "3",
+          artists: ["Luna Skies"],
+          title: "Eclipse Heartbeat",
+          coverUrl: "https://cdn.musebycl.io/2022-07/Bocanada.jpg",
+          genre: "Pop",
+          bpm: 104,
+          duration: 178,
+        },
+        {
+          id: "4",
+          artists: ["Silver Bridge", "Luna Skies"],
+          title: "Horizons Beyond",
+          coverUrl:
+            "https://www.rihannanow.com/wp-content/uploads/2015/10/RIRI-Front-6.203-x-5.4375-CMYK-898x1024.jpg",
+          genre: "R&B",
+          bpm: 110,
+          duration: 212,
+        },
+        {
+          id: "5",
+          artists: ["DJ Solarflare"],
+          title: "Solar Surfer",
+          coverUrl:
+            "https://coverartland.com/wp-content/uploads/2023/08/obscure-350x350.jpg",
+          genre: "Techno",
+          bpm: 132,
+          duration: 198,
+        },
+        {
+          id: "6",
+          artists: ["The Velvet Owls", "Silver Bridge"],
+          title: "Midnight Conversations",
+          coverUrl:
+            "https://decybeledizajnu.com/wp-content/uploads/2022/07/blood-moon-b-iext105662067.jpg",
+          genre: "Indie",
+          bpm: 96,
+          duration: 236,
+        },
+        {
+          id: "7",
+          artists: ["Harmonic Waves"],
+          title: "Ocean's Lullaby",
+          coverUrl:
+            "https://blog.spoongraphics.co.uk/wp-content/uploads/2017/album-art/22.jpg",
+          genre: "House",
+          bpm: 80,
+          duration: 270,
+        },
+        {
+          id: "8",
+          artists: ["The Velvet Owls"],
+          title: "Deserted Alleyways",
+          coverUrl:
+            "https://cdns-images.dzcdn.net/images/cover/404d06fa565dbb06f88b016dabac8272/264x264.jpg",
+          genre: "Indie",
+          bpm: 122,
+          duration: 185,
+        },
+        {
+          id: "9",
+          artists: ["Luna Skies", "Harmonic Waves"],
+          title: "Starry Canopy",
+          coverUrl:
+            "https://t2.genius.com/unsafe/504x504/https%3A%2F%2Fimages.genius.com%2F0f93a486bfe3409c1fe5f9bfe95f649f.1000x1000x1.jpg",
+          genre: "Trap",
+          bpm: 90,
+          duration: 240,
+        },
+        {
+          id: "10",
+          artists: ["DJ Solarflare", "Silver Bridge"],
+          title: "Galactic Groove",
+          coverUrl:
+            "https://i.pinimg.com/1200x/d7/10/ee/d710ee657d88cf447ddd511a2a087827.jpg",
+          genre: "House",
+          bpm: 134,
+          duration: 220,
+        },
+        {
+          id: "11",
+          artists: ["Thunder Echoes"],
+          title: "Rumbling Skies",
+          coverUrl:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_lImJQuDOmcyjgMucPsd9VEaUBZMgS9fqiw&usqp=CAU",
+          genre: "Rock",
+          bpm: 130,
+          duration: 210,
+        },
+        {
+          id: "12",
+          artists: ["Crescent Moons", "Harmonic Waves"],
+          title: "Silent Whispers",
+          coverUrl:
+            "https://images.genius.com/c93ba6fa10f7b55db8266a01e96893f7.1000x1000x1.jpg",
+          genre: "R&B",
+          bpm: 105,
+          duration: 245,
+        },
+        {
+          id: "13",
+          artists: ["DJ Solarflare", "Thunder Echoes"],
+          title: "Electric Surge",
+          coverUrl:
+            "https://images.genius.com/9ebe8a2c41db9f1fe95402f9acdf3773.1000x1000x1.png",
+          genre: "Techno",
+          bpm: 140,
+          duration: 225,
+        },
+        {
+          id: "14",
+          artists: ["Silver Bridge", "Crescent Moons"],
+          title: "Reflective Waters",
+          coverUrl:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV7IEnT8TE7QKe_iEosObIvyJuNB9z6xuoPQ&usqp=CAU",
+          genre: "Pop",
+          bpm: 95,
+          duration: 230,
+        },
+        {
+          id: "15",
+          artists: ["Luna Skies", "Thunder Echoes"],
+          title: "Dawning Hopes",
+          coverUrl:
+            "https://i1.sndcdn.com/artworks-CM0Tzm2OZLAZ4sCf-HdaOGw-t500x500.jpg",
+          genre: "Drill",
+          bpm: 120,
+          duration: 240,
+        },
+      ];
 
-      fetch(songsUrl)
-        .then((response) => response.json())
-        .then((data) => {
-          const songs = data.songs;
-          populateSongTable(songs);
-        })
-        .catch((error) =>
-          console.error("Błąd podczas pobierania utworów:", error)
-        );
+      function generateSongsTable(data) {
+        const tableBody = document.getElementById("songsTableBody");
 
-      fetch(genresUrl)
-        .then((response) => response.json())
-        .then((data) => {
-          const genres = data.genres;
-          populateGenreSelect(genres);
-        })
-        .catch((error) =>
-          console.error("Błąd podczas pobierania gatunków:", error)
-        );
+        data.forEach((song) => {
+          const row = tableBody.insertRow();
 
-      function populateSongTable(songs) {
-        // Implementacja funkcji do wypełniania tabeli utworów
-        // Dla każdego utworu utwórz wiersz w tabeli
+          const cells = [
+            song.title,
+            song.artists.join(", "),
+            song.genre,
+            song.duration,
+          ];
+
+          cells.forEach((cellData) => {
+            const cell = row.insertCell();
+            cell.textContent = cellData;
+          });
+        });
+      }
+      generateSongsTable(songsData);
+
+      function generateSongsTable(filteredData) {
+        const tableBody = document.getElementById("songsTableBody");
+        tableBody.innerHTML = "";
+        filteredData.forEach((song) => {
+          const row = tableBody.insertRow();
+          const cells = [
+            song.title,
+            song.artists.join(", "),
+            song.genre,
+            song.duration,
+          ];
+
+          cells.forEach((cellData) => {
+            const cell = row.insertCell();
+            cell.textContent = cellData;
+          });
+        });
       }
 
-      function populateGenreSelect(genres) {
-        // Implementacja funkcji do wypełniania listy opcji w select z gatunkami
+      function filterAndSortData() {
+        const genre = document
+          .getElementById("genreSelect")
+          .value.toLowerCase();
+        const tempo = document
+          .getElementById("tempoSelect")
+          .value.toLowerCase();
+        const search = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const sortOption = document
+          .getElementById("sortSelect")
+          .value.toLowerCase();
+
+        const filteredData = songsData.filter((song) => {
+          const matchesGenre =
+            genre === "all" || song.genre.toLowerCase() === genre;
+          const matchesTempo =
+            tempo === "all" ||
+            (tempo === "slow" && song.bpm < 110) ||
+            (tempo === "medium" && song.bpm >= 110 && song.bpm <= 130) ||
+            (tempo === "fast" && song.bpm > 130);
+          const matchesSearch =
+            song.title.toLowerCase().includes(search) ||
+            song.artists.join(", ").toLowerCase().includes(search);
+          return matchesGenre && matchesTempo && matchesSearch;
+        });
+
+        if (sortOption === "asc") {
+          filteredData.sort((a, b) => a.duration - b.duration);
+        } else if (sortOption === "desc") {
+          filteredData.sort((a, b) => b.duration - a.duration);
+        }
+
+        generateSongsTable(filteredData);
       }
 
-      // Implementuj funkcje do filtrowania, sortowania i zarządzania ulubionymi
+      function resetFilters() {
+        document.getElementById("genreSelect").value = "all";
+        document.getElementById("tempoSelect").value = "all";
+        document.getElementById("searchInput").value = "";
+        document.getElementById("sortSelect").value = "asc";
+        generateSongsTable(songsData);
+      }
+
+      document
+        .getElementById("filterForm")
+        .addEventListener("change", filterAndSortData);
     </script>
   </body>
 </html>

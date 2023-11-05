@@ -1,0 +1,18 @@
+/*
+  Zaktualizuj poniższy komponent: 
+  Za pomocą destukturyzacji wyciągnij użytkownika z propsów,
+  następnie wyciągnij avatar i name z użytkownika.
+  Podczas wyciągania name zabezpiecz się przed sytuacją, 
+  gdyby name było niezdefniowane. 
+  W takim przypadku podczas destrukturyzacji 
+  należy przypisać wartość "Anonim".
+*/
+
+// const UserBar = (props) => {
+//     return (
+//       <div>
+//         <img src={props.user.avatar} />
+//         <h3>{props.user.name}</h3>
+//       </div>
+//     );
+//   };
