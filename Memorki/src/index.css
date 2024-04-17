@@ -1,0 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Sedan:ital@0;1&d");
+body {
+    font-family: Sedan, sans-serif;
+    margin: 0;
+    font-size: 1, 5em;
+    text-align: center;
+    background: #1b1523;
+}
